@@ -1,0 +1,38 @@
+{
+  "name": "virtual-global-citizen",
+  "version": "1.0.0",
+  "description": "Virtual Global Citizen - Trải nghiệm hành trình làm công dân toàn cầu",
+  "main": "index.js",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview",
+    "serve": "vite preview"
+  },
+  "keywords": [
+    "global-citizen",
+    "virtual-reality",
+    "education",
+    "social-impact",
+    "webgame"
+  ],
+  "author": "Virtual Global Citizen Team",
+  "license": "MIT",
+  "devDependencies": {
+    "@vitejs/plugin-react": "^4.2.0",
+    "vite": "^5.0.0"
+  },
+  "dependencies": {
+    "autoprefixer": "^10.4.21",
+    "axios": "^1.6.0",
+    "chart.js": "^4.4.0",
+    "framer-motion": "^10.16.0",
+    "lucide-react": "^0.294.0",
+    "postcss": "^8.5.6",
+    "react": "^18.2.0",
+    "react-chartjs-2": "^5.2.0",
+    "react-dom": "^18.2.0",
+    "react-router-dom": "^6.8.0",
+    "tailwindcss": "^3.4.17"
+  }
+}
