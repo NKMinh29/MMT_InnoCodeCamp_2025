@@ -223,10 +223,12 @@ const Game = () => {
         </div>
       </div>
 
-      <button onClick={startGame} className="btn-primary text-lg px-8 py-4">
-        <Play className="w-5 h-5 mr-2" />
-        Bắt đầu chơi
-      </button>
+      <div className="flex justify-center mt-8">
+        <button onClick={startGame} className="px-8 py-4 rounded-full bg-primary-600 text-white font-bold shadow-lg flex items-center justify-center text-lg hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-primary-400 transition whitespace-nowrap">
+          <Play className="w-5 h-5 mr-2" />
+          Bắt đầu chơi
+        </button>
+      </div>
     </motion.div>
   )
 
@@ -376,8 +378,11 @@ const Game = () => {
       </div>
 
       <div className="space-y-4">
-        <button onClick={resetGame} className="btn-primary">
-          <RotateCcw className="w-4 h-4 mr-2" />
+        <button
+          onClick={resetGame}
+          className="w-full px-8 py-4 rounded-full bg-gradient-to-r from-primary-600 to-secondary-500 text-white font-bold shadow-lg flex items-center justify-center text-lg hover:from-primary-700 hover:to-secondary-600 focus:outline-none focus:ring-2 focus:ring-primary-400 transition whitespace-nowrap"
+        >
+          <RotateCcw className="w-5 h-5 mr-2" />
           Chơi lại
         </button>
         

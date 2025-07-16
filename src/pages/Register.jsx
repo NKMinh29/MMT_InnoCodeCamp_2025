@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import { motion } from 'framer-motion'
 import { 
   User, 
@@ -16,6 +16,8 @@ import {
   Star,
   Sparkles
 } from 'lucide-react'
+import { getUserProfile } from '../services/userService';
+import axios from 'axios';
 
 const Register = () => {
   const [formData, setFormData] = useState({
@@ -33,6 +35,33 @@ const Register = () => {
 
   const [currentStep, setCurrentStep] = useState(1)
   const [showRecommendations, setShowRecommendations] = useState(false)
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [loading, setLoading] = useState(true);
+  const [updateMsg, setUpdateMsg] = useState('');
+
+  useEffect(() => {
+    const token = localStorage.getItem('token');
+    setIsLoggedIn(!!token);
+    if (token) {
+      getUserProfile().then(user => {
+        setFormData({
+          fullName: user.fullName || '',
+          email: user.email || '',
+          phone: user.phone || '',
+          dateOfBirth: user.dateOfBirth || '',
+          location: user.location || '',
+          education: user.education || '',
+          interests: user.interests || [],
+          experience: user.experience || '',
+          availability: user.availability || '',
+          motivation: user.motivation || ''
+        });
+        setLoading(false);
+      }).catch(() => setLoading(false));
+    } else {
+      setLoading(false);
+    }
+  }, []);
 
   const interests = [
     { id: 'charity', name: 'Thiện nguyện', icon: Heart, color: 'text-red-500' },
@@ -132,6 +161,28 @@ const Register = () => {
   const getInterestColor = (interestId) => {
     const interest = interests.find(i => i.id === interestId)
     return interest ? interest.color : 'text-gray-500'
+  }
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    if (isLoggedIn) {
+      // Update user info
+      try {
+        setUpdateMsg('');
+        setLoading(true);
+        const token = localStorage.getItem('token');
+        await axios.put('http://localhost:5001/api/profile', formData, {
+          headers: { Authorization: `Bearer ${token}` }
+        });
+        setUpdateMsg('Cập nhật thông tin thành công!');
+      } catch (err) {
+        setUpdateMsg('Cập nhật thất bại!');
+      } finally {
+        setLoading(false);
+      }
+    } else {
+      // ... giữ nguyên logic đăng ký cũ ...
+    }
   }
 
   const renderStep = () => {
@@ -377,10 +428,10 @@ const Register = () => {
           className="text-center mb-12"
         >
           <h1 className="text-4xl font-bold text-gray-900 mb-4">
-            Đăng ký tham gia
+            {isLoggedIn ? 'Cập nhật thông tin' : 'Đăng ký tham gia'}
           </h1>
           <p className="text-xl text-gray-600">
-            Trở thành công dân toàn cầu và bắt đầu hành trình của bạn
+            {isLoggedIn ? 'Cập nhật thông tin cá nhân của bạn' : 'Trở thành công dân toàn cầu và bắt đầu hành trình của bạn'}
           </p>
         </motion.div>
 
@@ -406,30 +457,61 @@ const Register = () => {
 
         {/* Form */}
         <div className="bg-white rounded-xl shadow-lg p-8">
-          {renderStep()}
+          {loading ? (
+            <div className="text-center py-12">
+              <p>Đang tải thông tin...</p>
+            </div>
+          ) : (
+            <>
+              {renderStep()}
 
-          {/* Navigation Buttons */}
-          <div className="flex justify-between mt-8">
-            <button
-              onClick={prevStep}
-              disabled={currentStep === 1}
-              className={`px-6 py-3 rounded-lg font-medium transition-colors ${
-                currentStep === 1
-                  ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
-                  : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
-              }`}
-            >
-              Quay lại
-            </button>
+              {/* Navigation Buttons */}
+              <div className="flex justify-between mt-8">
+                <button
+                  onClick={prevStep}
+                  disabled={currentStep === 1}
+                  className={`px-6 py-3 rounded-full font-medium transition-colors whitespace-nowrap shadow ${
+                    currentStep === 1
+                      ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
+                      : 'bg-gray-200 text-gray-700 hover:bg-gray-300 focus:outline-none focus:ring-2 focus:ring-primary-400'
+                  }`}
+                >
+                  Quay lại
+                </button>
 
-            <button
-              onClick={nextStep}
-              className="btn-primary flex items-center"
-            >
-              {currentStep === 3 ? 'Hoàn thành' : 'Tiếp theo'}
-              <ArrowRight className="ml-2 w-4 h-4" />
-            </button>
-          </div>
+                {currentStep === 3 ? (
+                  isLoggedIn ? (
+                    <button
+                      onClick={handleSubmit}
+                      className="px-6 py-3 rounded-full bg-primary-600 text-white font-semibold shadow hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-primary-400 transition flex items-center whitespace-nowrap text-base"
+                      disabled={loading}
+                    >
+                      {loading ? 'Đang cập nhật...' : 'Cập nhật thông tin'}
+                    </button>
+                  ) : (
+                    <button
+                      onClick={nextStep}
+                      className="px-6 py-3 rounded-full bg-primary-600 text-white font-semibold shadow hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-primary-400 transition flex items-center whitespace-nowrap text-base"
+                    >
+                      Hoàn thành
+                      <ArrowRight className="ml-2 w-4 h-4" />
+                    </button>
+                  )
+                ) : (
+                  <button
+                    onClick={nextStep}
+                    className="px-6 py-3 rounded-full bg-primary-600 text-white font-semibold shadow hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-primary-400 transition flex items-center whitespace-nowrap text-base"
+                  >
+                    Tiếp theo
+                    <ArrowRight className="ml-2 w-4 h-4" />
+                  </button>
+                )}
+              </div>
+              {updateMsg && (
+                <div className={`mt-4 text-center font-medium ${updateMsg.includes('thành công') ? 'text-green-600' : 'text-red-600'}`}>{updateMsg}</div>
+              )}
+            </>
+          )}
         </div>
 
         {/* AI Recommendations */}
@@ -480,7 +562,7 @@ const Register = () => {
                       <p className="text-gray-600 text-sm mb-4 line-clamp-3">
                         {program.description}
                       </p>
-                      <button className="w-full btn-primary text-sm">
+                      <button className="w-full px-5 py-3 rounded-full bg-primary-600 text-white font-semibold shadow hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-primary-400 transition text-sm whitespace-nowrap">
                         Tham gia ngay
                       </button>
                     </div>
@@ -489,7 +571,7 @@ const Register = () => {
               </div>
 
               <div className="text-center mt-8">
-                <button className="btn-outline">
+                <button className="px-6 py-3 rounded-full border-2 border-primary-600 text-primary-600 font-semibold bg-white shadow hover:bg-primary-600 hover:text-white focus:outline-none focus:ring-2 focus:ring-primary-400 transition whitespace-nowrap">
                   Xem tất cả chương trình
                 </button>
               </div>

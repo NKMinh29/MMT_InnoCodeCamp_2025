@@ -13,6 +13,8 @@ import {
   Play,
   Star
 } from 'lucide-react'
+import DefaultAvatar from '../components/DefaultAvatar';
+import AvatarWithFallback from '../components/AvatarWithFallback';
 
 const Home = () => {
   const features = [
@@ -54,19 +56,19 @@ const Home = () => {
       name: 'Nguyễn Thị Anh',
       role: 'Sinh viên Đại học',
       content: 'Virtual Global Citizen đã giúp tôi hiểu rõ hơn về các vấn đề toàn cầu và cách đóng góp tích cực.',
-      avatar: 'https://images.unsplash.com/photo-1494790108755-2616b612b786?w=150&h=150&fit=crop&crop=face'
+      avatar: null
     },
     {
       name: 'Trần Văn Bình',
       role: 'Nhân viên công ty',
       content: 'Trải nghiệm game tương tác rất thú vị và giáo dục. Tôi đã học được nhiều kỹ năng ra quyết định.',
-      avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&h=150&fit=crop&crop=face'
+      avatar: null
     },
     {
       name: 'Lê Thị Cẩm',
       role: 'Giáo viên',
       content: 'Đây là một nền tảng tuyệt vời để giáo dục học sinh về trách nhiệm công dân toàn cầu.',
-      avatar: 'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=150&h=150&fit=crop&crop=face'
+      avatar: null
     }
   ]
 
@@ -93,11 +95,11 @@ const Home = () => {
                 Trải nghiệm hành trình làm công dân toàn cầu thông qua các hoạt động thiện nguyện và mô phỏng tương tác.
               </p>
               <div className="flex flex-col sm:flex-row gap-4">
-                <Link to="/register" className="btn-primary text-lg px-8 py-4 flex items-center justify-center">
+                <Link to="/register" className="px-8 py-4 rounded-full bg-yellow-400 text-primary-900 font-bold shadow-lg flex items-center justify-center text-lg hover:bg-yellow-300 focus:outline-none focus:ring-2 focus:ring-yellow-500 transition whitespace-nowrap">
                   Bắt đầu ngay
                   <ArrowRight className="ml-2 w-5 h-5" />
                 </Link>
-                <Link to="/game" className="btn-outline text-lg px-8 py-4 flex items-center justify-center border-white text-white hover:bg-white hover:text-primary-600">
+                <Link to="/game" className="px-8 py-4 rounded-full border-2 border-white text-white font-bold shadow-lg flex items-center justify-center text-lg hover:bg-white hover:text-primary-600 focus:outline-none focus:ring-2 focus:ring-primary-400 transition whitespace-nowrap">
                   <Play className="mr-2 w-5 h-5" />
                   Thử trò chơi
                 </Link>
@@ -245,9 +247,10 @@ const Home = () => {
                 </div>
                 <p className="text-gray-600 mb-6 italic">"{testimonial.content}"</p>
                 <div className="flex items-center">
-                  <img
+                  <AvatarWithFallback
                     src={testimonial.avatar}
                     alt={testimonial.name}
+                    size={48}
                     className="w-12 h-12 rounded-full mr-4"
                   />
                   <div>

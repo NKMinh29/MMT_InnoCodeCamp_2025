@@ -58,8 +58,8 @@ export default {
           '50%': { transform: 'translateY(-20px)' },
         }
       },
-      background: '#fff',      // hoặc màu bạn muốn
-      foreground: '#000',
+      // background: '#fff',      // hoặc màu bạn muốn
+      // foreground: '#000',
     },
   },
   plugins: [],

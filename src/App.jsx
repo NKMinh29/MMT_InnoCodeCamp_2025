@@ -13,6 +13,9 @@ import Register from './pages/Register'
 import Profile from './pages/Profile'
 import Game from './pages/Game'
 import Leaderboard from './pages/Leaderboard'
+import UserLogin from './pages/UserLogin';
+import UserRegister from './pages/UserRegister';
+import PublicProfile from './pages/PublicProfile';
 
 function App() {
   return (
@@ -84,6 +87,36 @@ function App() {
               transition={{ duration: 0.5 }}
             >
               <Leaderboard />
+            </motion.div>
+          } />
+          <Route path="/user-login" element={
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -20 }}
+              transition={{ duration: 0.5 }}
+            >
+              <UserLogin />
+            </motion.div>
+          } />
+          <Route path="/user-register" element={
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -20 }}
+              transition={{ duration: 0.5 }}
+            >
+              <UserRegister />
+            </motion.div>
+          } />
+          <Route path="/profile/:username" element={
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -20 }}
+              transition={{ duration: 0.5 }}
+            >
+              <PublicProfile />
             </motion.div>
           } />
         </Routes>

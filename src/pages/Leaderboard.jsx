@@ -19,6 +19,9 @@ import {
   Stethoscope,
   Globe
 } from 'lucide-react'
+import DefaultAvatar from '../components/DefaultAvatar';
+import AvatarWithFallback from '../components/AvatarWithFallback';
+import { Link } from 'react-router-dom';
 
 const Leaderboard = () => {
   const [selectedPeriod, setSelectedPeriod] = useState('all')
@@ -43,7 +46,8 @@ const Leaderboard = () => {
     {
       id: 1,
       name: 'Trần Văn Bình',
-      avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&h=150&fit=crop&crop=face',
+      username: 'tranvanbinh4',
+      avatar: null,
       points: 4850,
       rank: 1,
       level: 'Diamond',
@@ -57,7 +61,8 @@ const Leaderboard = () => {
     {
       id: 2,
       name: 'Lê Thị Cẩm',
-      avatar: 'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=150&h=150&fit=crop&crop=face',
+      username: 'lethicam4',
+      avatar: null,
       points: 4320,
       rank: 2,
       level: 'Platinum',
@@ -71,7 +76,8 @@ const Leaderboard = () => {
     {
       id: 3,
       name: 'Nguyễn Thị Anh',
-      avatar: 'https://images.unsplash.com/photo-1494790108755-2616b612b786?w=150&h=150&fit=crop&crop=face',
+      username: 'nguyenthianh4',
+      avatar: null,
       points: 3840,
       rank: 3,
       level: 'Gold',
@@ -88,7 +94,8 @@ const Leaderboard = () => {
     {
       id: 4,
       name: 'Phạm Văn Dũng',
-      avatar: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=150&h=150&fit=crop&crop=face',
+      username: 'phamvandung4',
+      avatar: null,
       points: 3560,
       rank: 4,
       level: 'Gold',
@@ -102,7 +109,8 @@ const Leaderboard = () => {
     {
       id: 5,
       name: 'Hoàng Thị Mai',
-      avatar: 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=150&h=150&fit=crop&crop=face',
+      username: 'hoangthimai4',
+      avatar: null,
       points: 3240,
       rank: 5,
       level: 'Silver',
@@ -116,7 +124,8 @@ const Leaderboard = () => {
     {
       id: 6,
       name: 'Vũ Hoàng Nam',
-      avatar: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=150&h=150&fit=crop&crop=face',
+      username: 'vuhoangnam4',
+      avatar: null,
       points: 2980,
       rank: 6,
       level: 'Silver',
@@ -130,7 +139,8 @@ const Leaderboard = () => {
     {
       id: 7,
       name: 'Đỗ Thị Hương',
-      avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&h=150&fit=crop&crop=face',
+      username: 'đothihuong4',
+      avatar: null,
       points: 2750,
       rank: 7,
       level: 'Silver',
@@ -144,7 +154,8 @@ const Leaderboard = () => {
     {
       id: 8,
       name: 'Lý Văn Tùng',
-      avatar: 'https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?w=150&h=150&fit=crop&crop=face',
+      username: 'lyvantung4',
+      avatar: null,
       points: 2520,
       rank: 8,
       level: 'Bronze',
@@ -158,7 +169,8 @@ const Leaderboard = () => {
     {
       id: 9,
       name: 'Ngô Thị Lan',
-      avatar: 'https://images.unsplash.com/photo-1517841905240-472988babdf9?w=150&h=150&fit=crop&crop=face',
+      username: 'ngothilan4',
+      avatar: null,
       points: 2310,
       rank: 9,
       level: 'Bronze',
@@ -172,7 +184,8 @@ const Leaderboard = () => {
     {
       id: 10,
       name: 'Bùi Văn Hùng',
-      avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&h=150&fit=crop&crop=face',
+      username: 'buivanhung4',
+      avatar: null,
       points: 2150,
       rank: 10,
       level: 'Bronze',
@@ -259,9 +272,9 @@ const Leaderboard = () => {
               </select>
             </div>
 
-            <div className="flex items-end">
-              <button className="w-full btn-primary">
-                <Filter className="w-4 h-4 mr-2" />
+            <div className="w-full flex items-end">
+              <button className="w-full px-4 py-2 rounded-full border-2 border-primary-600 text-primary-600 font-semibold bg-white shadow hover:bg-primary-600 hover:text-white focus:outline-none focus:ring-2 focus:ring-primary-400 transition whitespace-nowrap text-sm flex items-center gap-2">
+                <Filter className="w-4 h-4" />
                 Lọc
               </button>
             </div>
@@ -281,9 +294,10 @@ const Leaderboard = () => {
                 className={`card p-6 text-center ${index === 0 ? 'ring-2 ring-yellow-400' : ''}`}
               >
                 <div className="relative mb-4">
-                  <img
+                  <AvatarWithFallback
                     src={user.avatar}
                     alt={user.name}
+                    size={96}
                     className={`w-24 h-24 rounded-full mx-auto object-cover border-4 ${
                       index === 0 ? 'border-yellow-400' : 
                       index === 1 ? 'border-gray-400' : 'border-yellow-600'
@@ -294,7 +308,9 @@ const Leaderboard = () => {
                   </div>
                 </div>
 
-                <h3 className="text-xl font-semibold text-gray-900 mb-2">{user.name}</h3>
+                <h3 className="text-xl font-semibold text-gray-900 mb-2">
+                  <span className="text-gray-900">{user.name}</span>
+                </h3>
                 <div className={`inline-block bg-gradient-to-r ${getLevelColor(user.level)} text-white px-3 py-1 rounded-full text-sm font-medium mb-3`}>
                   {user.level}
                 </div>
@@ -377,13 +393,16 @@ const Leaderboard = () => {
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
                       <div className="flex items-center">
-                        <img
+                        <AvatarWithFallback
                           src={user.avatar}
                           alt={user.name}
+                          size={40}
                           className="w-10 h-10 rounded-full mr-3"
                         />
                         <div>
-                          <div className="text-sm font-medium text-gray-900">{user.name}</div>
+                          <div className="text-sm font-medium text-gray-900">
+                            <span className="text-gray-900">{user.name}</span>
+                          </div>
                           <div className="text-sm text-gray-500">{user.location}</div>
                         </div>
                       </div>

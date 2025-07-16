@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import { motion } from 'framer-motion'
 import { 
   User, 
@@ -23,25 +23,32 @@ import {
   TrendingUp,
   Activity
 } from 'lucide-react'
+import DefaultAvatar from '../components/DefaultAvatar';
+import { getUserProfile } from '../services/userService';
 
 const Profile = () => {
   const [activeTab, setActiveTab] = useState('overview')
+  const [user, setUser] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
 
-  // Mock user data
-  const user = {
-    name: 'Nguyễn Thị Anh',
-    email: 'anh.nguyen@email.com',
-    phone: '0123456789',
-    location: 'Hà Nội, Việt Nam',
-    joinDate: '2024-01-15',
-    avatar: 'https://images.unsplash.com/photo-1494790108755-2616b612b786?w=200&h=200&fit=crop&crop=face',
-    level: 'Gold',
-    totalPoints: 2840,
-    rank: 15,
-    programsCompleted: 23,
-    hoursVolunteered: 156,
-    certificates: 8
-  }
+  useEffect(() => {
+    const fetchUser = async () => {
+      try {
+        const data = await getUserProfile();
+        setUser(data);
+      } catch (err) {
+        setError('Không thể tải thông tin hồ sơ.');
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchUser();
+  }, []);
+
+  if (loading) return <div className="text-center py-20">Đang tải hồ sơ...</div>;
+  if (error) return <div className="text-center text-red-600 py-20">{error}</div>;
+  if (!user) return null;
 
   const stats = [
     { label: 'Điểm tổng cộng', value: user.totalPoints, icon: Trophy, color: 'text-yellow-600' },
@@ -363,11 +370,16 @@ const Profile = () => {
           <div className="flex flex-col md:flex-row items-center md:items-start space-y-6 md:space-y-0 md:space-x-8">
             {/* Avatar */}
             <div className="relative">
-              <img
-                src={user.avatar}
-                alt={user.name}
-                className="w-32 h-32 rounded-full object-cover border-4 border-white shadow-lg"
-              />
+              {user.avatar ? (
+                <img
+                  src={user.avatar}
+                  alt={user.name}
+                  className="w-32 h-32 rounded-full object-cover border-4 border-white shadow-lg"
+                  onError={e => { e.target.onerror = null; e.target.style.display = 'none'; e.target.parentNode.appendChild(document.createElement('div')).outerHTML = `<div class='w-32 h-32'><DefaultAvatar size={128} /></div>`; }}
+                />
+              ) : (
+                <DefaultAvatar size={128} />
+              )}
               <div className="absolute -bottom-2 -right-2 w-8 h-8 bg-gradient-to-r from-yellow-400 to-orange-400 rounded-full flex items-center justify-center">
                 <Edit className="w-4 h-4 text-white" />
               </div>
@@ -376,13 +388,15 @@ const Profile = () => {
             {/* User Info */}
             <div className="flex-1 text-center md:text-left">
               <div className="flex items-center justify-center md:justify-start space-x-4 mb-4">
-                <h1 className="text-3xl font-bold text-gray-900">{user.name}</h1>
-                <div className="bg-gradient-to-r from-yellow-400 to-orange-400 text-white px-3 py-1 rounded-full text-sm font-medium">
-                  {user.level}
-                </div>
+                <h1 className="text-3xl font-bold text-gray-900">{user.fullName || user.username}</h1>
+                {user.level && (
+                  <div className="bg-gradient-to-r from-yellow-400 to-orange-400 text-white px-3 py-1 rounded-full text-sm font-medium">
+                    {user.level}
+                  </div>
+                )}
               </div>
-              
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+              {/* 2 dòng, mỗi dòng 2 mục */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
                 <div className="flex items-center justify-center md:justify-start">
                   <Mail className="w-4 h-4 text-gray-400 mr-2" />
                   <span className="text-gray-600">{user.email}</span>
@@ -397,9 +411,47 @@ const Profile = () => {
                 </div>
                 <div className="flex items-center justify-center md:justify-start">
                   <Calendar className="w-4 h-4 text-gray-400 mr-2" />
-                  <span className="text-gray-600">Tham gia: {user.joinDate}</span>
+                  <span className="text-gray-600">Ngày sinh: {user.dateOfBirth}</span>
                 </div>
               </div>
+              {/* Dòng riêng cho học vấn, sở thích, kinh nghiệm, thời gian tham gia */}
+              <div className="mb-4 grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  {user.education && (
+                    <div className="mb-2">
+                      <span className="font-semibold text-gray-700">Trình độ học vấn: </span>
+                      <span className="text-gray-600">{user.education}</span>
+                    </div>
+                  )}
+                  {user.interests && user.interests.length > 0 && (
+                    <div className="mb-2">
+                      <span className="font-semibold text-gray-700">Sở thích: </span>
+                      <span className="text-gray-600">{user.interests.join(', ')}</span>
+                    </div>
+                  )}
+                </div>
+                <div>
+                  {user.experience && (
+                    <div className="mb-2">
+                      <span className="font-semibold text-gray-700">Kinh nghiệm: </span>
+                      <span className="text-gray-600">{user.experience}</span>
+                    </div>
+                  )}
+                  {user.availability && (
+                    <div className="mb-2">
+                      <span className="font-semibold text-gray-700">Thời gian có thể tham gia: </span>
+                      <span className="text-gray-600">{user.availability}</span>
+                    </div>
+                  )}
+                </div>
+              </div>
+              {/* Động lực chiếm cả dòng */}
+              {user.motivation && (
+                <div className="mb-2 w-full block overflow-x-auto">
+                  <span className="font-semibold text-gray-700">Động lực: </span>
+                  <span className="text-gray-600 break-all whitespace-pre-line pr-2">{user.motivation}</span>
+                </div>
+              )}
 
               <div className="flex items-center justify-center md:justify-start space-x-6">
                 <div className="text-center">

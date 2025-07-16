@@ -320,7 +320,7 @@ const Programs = () => {
                   </div>
 
                   {/* Action Button */}
-                  <button className="w-full btn-primary flex items-center justify-center">
+                  <button className="w-full px-6 py-3 rounded-full bg-primary-600 text-white font-semibold shadow hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-primary-400 transition flex items-center justify-center text-base whitespace-nowrap">
                     Tham gia ngay
                     <ArrowRight className="ml-2 w-4 h-4" />
                   </button>
