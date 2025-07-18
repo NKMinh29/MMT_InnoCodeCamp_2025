@@ -185,6 +185,10 @@ const Register = () => {
     }
   }
 
+  // Helper: sinh key localStorage cho từng user
+  const getUserKey = (key, username) => `${key}_${username}`;
+  // (Nếu có thao tác lưu registeredPrograms, certificates... thì dùng getUserKey(key, username) để lưu/đọc theo user)
+
   const renderStep = () => {
     switch (currentStep) {
       case 1:

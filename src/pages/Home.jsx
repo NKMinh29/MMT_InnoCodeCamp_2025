@@ -1,5 +1,5 @@
-import React from 'react'
-import { Link } from 'react-router-dom'
+import React, { useEffect, useState } from 'react'
+import { Link, useLocation } from 'react-router-dom'
 import { motion } from 'framer-motion'
 import { 
   Globe, 
@@ -15,8 +15,145 @@ import {
 } from 'lucide-react'
 import DefaultAvatar from '../components/DefaultAvatar';
 import AvatarWithFallback from '../components/AvatarWithFallback';
+import { getUserProfile } from '../services/userService';
+import { courses } from '../data/courses';
+
+// Helper: sinh key localStorage cho từng user
+const getUserKey = (key, username) => `${key}_${username}`;
 
 const Home = () => {
+  const [programs, setPrograms] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [error, setError] = useState('');
+  const [userName, setUserName] = useState('');
+  const location = useLocation();
+
+  useEffect(() => {
+    const token = localStorage.getItem('token');
+    setIsLoggedIn(!!token);
+    if (token) {
+      setLoading(true);
+      setError('');
+      getUserProfile()
+        .then(user => {
+          setUserName(user.fullName || user.username || '');
+          const username = user.username || '';
+          // Lấy danh sách chương trình đã đăng ký từ localStorage theo user
+          const savedPrograms = localStorage.getItem(getUserKey('registeredPrograms', username));
+          let registeredIds = [];
+          if (savedPrograms) {
+            try {
+              registeredIds = JSON.parse(savedPrograms);
+            } catch (e) {}
+          }
+          // Lấy thông tin từng khóa học và tiến độ
+          const registeredCourses = courses.filter(c => registeredIds.includes(c.id));
+          const programProgress = registeredCourses.map(course => {
+            const progressRaw = localStorage.getItem(getUserKey(`courseProgress_${course.id}`, username));
+            let progress = {
+              completedLessons: [],
+            };
+            if (progressRaw) {
+              try {
+                progress = JSON.parse(progressRaw);
+              } catch (e) {}
+            }
+            return {
+              programId: course.id,
+              completedLessons: progress.completedLessons || [],
+            };
+          });
+          setPrograms(programProgress);
+          setLoading(false);
+        })
+        .catch(() => {
+          setUserName('');
+          setLoading(false);
+        });
+    } else {
+      setLoading(false);
+    }
+  }, [location]);
+
+  if (loading) return <div className="text-center py-12">Đang tải...</div>;
+  if (error) return <div className="text-center text-red-600 py-12">{error}</div>;
+
+  if (isLoggedIn) {
+    return (
+      <div className="min-h-screen bg-gray-50 py-12">
+        <div className="max-w-3xl mx-auto px-4">
+          {userName && (
+            <div className="text-xl font-semibold mb-4">
+              Hello, {userName}!
+            </div>
+          )}
+          <h1 className="text-2xl font-bold mb-6">Tiến độ các chương trình đã đăng ký</h1>
+          {Array.isArray(programs) && programs.length === 0 ? (
+            <div className="text-gray-600">Bạn chưa đăng ký chương trình nào.</div>
+          ) : Array.isArray(programs) ? (
+            <ul className="space-y-6">
+              {programs.map(program => {
+                // Tìm bài học tiếp theo chưa hoàn thành
+                const course = courses.find(c => c.id === program.programId);
+                let nextLesson = null;
+                if (course) {
+                  const progressRaw = localStorage.getItem(getUserKey(`courseProgress_${course.id}`, userName));
+                  let completedLessons = [];
+                  if (progressRaw) {
+                    try {
+                      completedLessons = JSON.parse(progressRaw).completedLessons || [];
+                    } catch (e) {}
+                  }
+                  nextLesson = course.lessons.find(lesson => !completedLessons.includes(lesson.id));
+                }
+                return (
+                  <li key={program.programId} className="bg-white rounded-xl shadow p-6">
+                    <div className="flex items-center mb-2">
+                      <img src={course?.image} alt={course?.title} className="w-16 h-16 rounded-lg object-cover mr-4" />
+                      <div>
+                        <h2 className="text-lg font-semibold">{course?.title}</h2>
+                        <p className="text-gray-500 text-sm">{course?.description}</p>
+                      </div>
+                    </div>
+                    <div className="mb-2 flex justify-between text-sm">
+                      <span>Tiến độ: {program.completedLessons.length}/{course?.lessons.length} bài</span>
+                      <span>{program.completedLessons.length / course?.lessons.length * 100}%</span>
+                    </div>
+                    <div className="w-full bg-gray-200 rounded-full h-3 mb-1">
+                      <div className="bg-blue-600 h-3 rounded-full" style={{ width: `${program.completedLessons.length / course?.lessons.length * 100}%` }}></div>
+                    </div>
+                    {program.completedLessons.length === course?.lessons.length && (
+                      <div className="text-green-600 font-semibold mt-1">Đã hoàn thành chương trình!</div>
+                    )}
+                    {/* Nút tiếp tục học */}
+                    {nextLesson && (
+                      <Link
+                        to={`/lessons/${program.programId}/${nextLesson.id}`}
+                        className="inline-block mt-3 px-5 py-2 bg-blue-600 text-white rounded-lg font-semibold hover:bg-blue-700 transition"
+                      >
+                        Tiếp tục học
+                      </Link>
+                    )}
+                  </li>
+                );
+              })}
+            </ul>
+          ) : null}
+          {/* Nút xem thêm khóa học */}
+          <div className="text-center mt-8">
+            <Link
+              to="/programs"
+              className="inline-block px-8 py-3 bg-gray-200 text-gray-800 rounded-full font-semibold hover:bg-gray-300 transition"
+            >
+              Xem thêm khóa học
+            </Link>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   const features = [
     {
       icon: Globe,

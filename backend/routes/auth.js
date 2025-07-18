@@ -2,24 +2,13 @@ const express = require('express');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const User = require('../models/User');
+const Program = require('../models/Program');
+const UserProgress = require('../models/UserProgress');
+const authMiddleware = require('../middleware/auth');
 
 const router = express.Router();
 
-// Middleware xác thực token
-function authMiddleware(req, res, next) {
-  const authHeader = req.headers.authorization;
-  if (!authHeader || !authHeader.startsWith('Bearer ')) {
-    return res.status(401).json({ message: 'No token provided' });
-  }
-  const token = authHeader.split(' ')[1];
-  try {
-    const decoded = jwt.verify(token, process.env.JWT_SECRET);
-    req.userId = decoded.userId;
-    next();
-  } catch (err) {
-    return res.status(401).json({ message: 'Invalid token' });
-  }
-}
+// Đã xóa function authMiddleware ở đây
 
 // Register
 router.post('/register', async (req, res) => {
@@ -98,6 +87,32 @@ router.get('/user/:username', async (req, res) => {
     const user = await User.findOne({ username: req.params.username }).select('-password -email');
     if (!user) return res.status(404).json({ message: 'User not found' });
     res.json(user);
+  } catch (err) {
+    res.status(500).json({ message: 'Server error' });
+  }
+});
+
+// Lấy danh sách chương trình đã đăng ký và tiến độ học của user
+router.get('/user/my-programs', authMiddleware, async (req, res) => {
+  try {
+    const userId = req.userId;
+    // Lấy tất cả progress của user
+    const progresses = await UserProgress.find({ userId }).populate('programId');
+    // Map sang dạng trả về: thông tin chương trình + progress
+    const result = progresses.map(p => {
+      const program = p.programId;
+      return {
+        programId: program._id,
+        title: program.title,
+        description: program.description,
+        image: program.image,
+        totalLessons: program.lessons ? program.lessons.length : 0,
+        completedCount: p.completedLessons ? p.completedLessons.length : 0,
+        percent: (program.lessons && program.lessons.length > 0) ? Math.round((p.completedLessons.length / program.lessons.length) * 100) : 0,
+        isCompleted: (program.lessons && program.lessons.length > 0) ? p.completedLessons.length === program.lessons.length : false
+      };
+    });
+    res.json(result);
   } catch (err) {
     res.status(500).json({ message: 'Server error' });
   }

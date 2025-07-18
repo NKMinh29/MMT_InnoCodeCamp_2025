@@ -16,6 +16,8 @@ import Leaderboard from './pages/Leaderboard'
 import UserLogin from './pages/UserLogin';
 import UserRegister from './pages/UserRegister';
 import PublicProfile from './pages/PublicProfile';
+import ProgramDetail from './pages/ProgramDetail';
+import Lesson from './pages/Lesson';
 
 function App() {
   return (
@@ -43,6 +45,37 @@ function App() {
               transition={{ duration: 0.5 }}
             >
               <Programs />
+            </motion.div>
+          } />
+          
+          <Route path="/programs/:id" element={
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -20 }}
+              transition={{ duration: 0.5 }}
+            >
+              <ProgramDetail />
+            </motion.div>
+          } />
+          <Route path="/programs/:courseId/modules/:moduleId/lessons/:lessonId" element={
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -20 }}
+              transition={{ duration: 0.5 }}
+            >
+              <Lesson />
+            </motion.div>
+          } />
+          <Route path="/lessons/:courseId/:lessonId" element={
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -20 }}
+              transition={{ duration: 0.5 }}
+            >
+              <Lesson />
             </motion.div>
           } />
           

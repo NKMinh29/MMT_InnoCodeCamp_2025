@@ -1,20 +1,25 @@
-import React, { useState } from 'react';
+import React from 'react';
 import DefaultAvatar from './DefaultAvatar';
 
-const AvatarWithFallback = ({ src, alt, size = 48, className = '' }) => {
-  const [error, setError] = useState(false);
-  if (!src || error) {
-    return <DefaultAvatar size={size} />;
+const getUserKey = (key, username) => `${key}_${username}`;
+
+const AvatarWithFallback = ({ avatar, name, size = 48, username }) => {
+  let finalAvatar = avatar;
+  if (!finalAvatar && username) {
+    const saved = localStorage.getItem(getUserKey('avatar', username));
+    if (saved) finalAvatar = saved;
   }
-  return (
+  return finalAvatar ? (
     <img
-      src={src}
-      alt={alt}
-      width={size}
-      height={size}
-      className={className}
-      onError={() => setError(true)}
+      src={finalAvatar}
+      alt={name}
+      className={`rounded-full object-cover`}
+      style={{ width: size, height: size }}
     />
+  ) : (
+    <div className="rounded-full bg-gray-200 flex items-center justify-center text-gray-500 font-bold" style={{ width: size, height: size, fontSize: size / 2 }}>
+      {name ? name[0].toUpperCase() : '?'}
+    </div>
   );
 };
 

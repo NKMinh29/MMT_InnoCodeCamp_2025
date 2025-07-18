@@ -17,15 +17,23 @@ const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false)
   const [isLoggedIn, setIsLoggedIn] = useState(false)
   const [username, setUsername] = useState('')
+  const [fullName, setFullName] = useState('')
   const location = useLocation()
   const navigate = useNavigate()
 
   useEffect(() => {
     const token = localStorage.getItem('token')
     setIsLoggedIn(!!token)
-    // Lấy username từ localStorage nếu có (có thể lưu khi login thành công)
+    // Lấy user từ localStorage nếu có (có thể lưu khi login thành công)
     const user = localStorage.getItem('user')
-    setUsername(user ? JSON.parse(user).username : '')
+    if (user) {
+      const userObj = JSON.parse(user)
+      setUsername(userObj.username || '')
+      setFullName(userObj.fullName || '')
+    } else {
+      setUsername('')
+      setFullName('')
+    }
   }, [location])
 
   const handleLogout = () => {
@@ -94,7 +102,7 @@ const Navbar = () => {
               </div>
             ) : (
               <div className="flex items-center space-x-2 ml-2 flex-nowrap overflow-x-auto">
-                <span className="text-primary-700 font-semibold text-sm whitespace-nowrap max-w-[120px] overflow-hidden text-ellipsis block" title={username && `Xin chào, ${username}`}>{username && `Xin chào, ${username}`}</span>
+                <span className="text-primary-700 font-semibold text-sm whitespace-nowrap max-w-[120px] overflow-hidden text-ellipsis block" title={(fullName || username) && `Xin chào, ${fullName || username}`}>{(fullName || username) && `Xin chào, ${fullName || username}`}</span>
                 <button onClick={handleLogout} className="px-3 py-1 rounded-lg bg-secondary-600 text-white font-semibold shadow hover:bg-secondary-700 focus:outline-none focus:ring-2 focus:ring-secondary-400 transition flex items-center space-x-1 text-sm whitespace-nowrap">
                   <LogOut className="w-4 h-4" />
                   <span>Đăng xuất</span>
@@ -149,7 +157,7 @@ const Navbar = () => {
                 </div>
               ) : (
                 <div className="flex flex-col space-y-2 mt-2">
-                  <span className="text-primary-700 font-semibold">{username && `Xin chào, ${username}`}</span>
+                  <span className="text-primary-700 font-semibold">{(fullName || username) && `Xin chào, ${fullName || username}`}</span>
                   <button onClick={() => { setIsOpen(false); handleLogout(); }} className="btn-secondary flex items-center space-x-1">
                     <LogOut className="w-4 h-4" />
                     <span>Đăng xuất</span>
