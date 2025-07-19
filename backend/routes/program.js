@@ -133,10 +133,10 @@ router.post('/ai/grade-essay', async (req, res) => {
   }
   try {
     console.log('Gemini API key:', process.env.GEMINI_API_KEY);
-    console.log('Using REST API with gemini-1.5-pro');
+    console.log('Using REST API with gemini-1.5-flash (free model)');
     
     const response = await axios.post(
-      `https://generativelanguage.googleapis.com/v1/models/gemini-1.5-pro:generateContent?key=${process.env.GEMINI_API_KEY}`,
+      `https://generativelanguage.googleapis.com/v1/models/gemini-1.5-flash:generateContent?key=${process.env.GEMINI_API_KEY}`,
       {
         contents: [{
           parts: [{
