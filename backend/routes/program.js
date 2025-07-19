@@ -140,7 +140,18 @@ router.post('/ai/grade-essay', async (req, res) => {
       {
         contents: [{
           parts: [{
-            text: `Bạn là giáo viên. Hãy chấm điểm bài tự luận sau (thang điểm 0-10, chỉ trả về số điểm và nhận xét ngắn, không giải thích thêm).\nCâu hỏi: ${question}\nBài làm: ${essay}`
+            text: `Bạn là giáo viên chấm điểm bài tự luận. Hãy chấm điểm theo thang 0-10 và đưa ra nhận xét chi tiết về:
+
+1. Điểm số: [số điểm]/10
+2. Nhận xét chi tiết:
+   - Ưu điểm: [liệt kê những điểm tốt]
+   - Hạn chế: [liệt kê những điểm cần cải thiện]
+   - Gợi ý cải thiện: [đưa ra lời khuyên cụ thể]
+
+Câu hỏi: ${question}
+Bài làm: ${essay}
+
+Hãy trả lời bằng tiếng Việt và đưa ra nhận xét chi tiết, hữu ích cho học sinh.`
           }]
         }]
       },
@@ -154,15 +165,28 @@ router.post('/ai/grade-essay', async (req, res) => {
     const aiResponse = response.data.candidates[0].content.parts[0].text.trim();
     console.log('AI Response:', aiResponse);
     
-    // Tách điểm và nhận xét
-    const match = aiResponse.match(/([0-9]{1,2})([.,][0-9])?\s*[:\-–]?\s*(.*)/);
+    // Tách điểm và nhận xét chi tiết
+    const scoreMatch = aiResponse.match(/Điểm số:\s*([0-9]{1,2})([.,][0-9])?/);
     let score = 0;
     let feedback = aiResponse;
-    if (match) {
-      score = parseFloat(match[1] + (match[2] || ''));
-      feedback = match[3] || '';
+    
+    if (scoreMatch) {
+      score = parseFloat(scoreMatch[1] + (scoreMatch[2] || ''));
+      // Lấy toàn bộ nhận xét chi tiết
+      feedback = aiResponse.replace(/^.*?Điểm số:\s*[0-9.,]+/s, '').trim();
+    } else {
+      // Fallback: tìm số điểm ở đầu response
+      const fallbackMatch = aiResponse.match(/^([0-9]{1,2})([.,][0-9])?/);
+      if (fallbackMatch) {
+        score = parseFloat(fallbackMatch[1] + (fallbackMatch[2] || ''));
+        feedback = aiResponse.replace(/^[0-9.,]+\s*/, '').trim();
+      }
     }
-    res.json({ score, feedback });
+    
+    // Đảm bảo điểm trong khoảng 0-10
+    score = Math.min(10, Math.max(0, score));
+    
+    res.json({ score, feedback, detailed: true });
   } catch (err) {
     console.error('Gemini AI error:', err.response?.data || err.message);
     console.error('Error stack:', err.stack);
